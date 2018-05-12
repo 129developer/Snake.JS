@@ -2,14 +2,16 @@
 <html>
     <body>
 
-        <canvas id="myCanvas" width="2000" height="1000"
+        <canvas id="myCanvas" width="1000" height="1000"
                 style="border:1px solid #c3c3c3;">
             Your browser does not support the canvas element.
         </canvas>
 
         <script>
-            var width = 2000;
-            var height = 2000;
+            var width = window.screen.width - 100;
+            var height = window.screen.height - 150;
+            document.getElementById('myCanvas').width = width;
+            document.getElementById('myCanvas').height = height;
             document.onkeydown = function (a) {
 //                console.log(a);
                 switch (a.code) {
@@ -43,6 +45,11 @@
             var ctx = canvas.getContext("2d");
             var boxSize = 15;
             var food = {x: 100, y: 30}
+            var rand2 = Math.floor(Math.random() * width - 10);
+            var rand1 = Math.floor(Math.random() * height - 10);
+            food.x = Math.abs(rand2 - rand2 % 5);
+            food.y = Math.abs(rand1 - rand1 % 5);
+
             ctx.fillStyle = "#FF0000";
             function putFood() {
                 ctx.fillStyle = "green";
@@ -52,7 +59,7 @@
                 ctx.fill()
             }
             var snake = {
-                x: 0, y: 0, length: 6, direction: 'R',
+                x: width/2, y: height/2, length: 6, direction: 'R',
                 bodyAry: [],
                 drawSnake: function () {
                     ctx.fillStyle = "#FF0000";
@@ -60,23 +67,44 @@
                         snake.draw(box);
                     });
                 },
+                checkCollition: function (box) {
+                    var collide = false;
+                    var i = 0;
+                    snake.bodyAry.forEach(function (box1) {
+                        if (i !== 0 && !collide && box1.x === box.x && box1.y === box.y) {
+                            collide = true;
+                        } else {
+                            if (box1.x > width || box1.x < 0 || box1.y > height - boxSize || box1.y < 0)
+                            {
+                                collide = true;
+                            }
+                        }
+                        i++;
+                    });
+                    if (collide) {
+                        clearInterval(invl);
+                        ctx.font = "30px Comic Sans MS";
+                        ctx.fillStyle = "red";
+                        ctx.textAlign = "center";
+                        ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2);
+                    }
+
+                },
                 draw: function (box) {
                     ctx.fillRect(box.x, box.y, boxSize, boxSize);
                 },
                 eat: function (box) {
-                    if (Math.abs(food.x - box.x) <= boxSize / 2 && Math.abs(food.y - box.y) <= boxSize / 2) {
-//                        alert();
-                        this.bodyAry.push({x: this.length * boxSize, y: 0, dir: "R"});
+                    if (Math.abs(food.x - box.x) <= boxSize && Math.abs(food.y - box.y) <= boxSize) {
+                        this.bodyAry.push({x: this.bodyAry[this.bodyAry.length-1].x, y: this.bodyAry[this.bodyAry.length-1].y, dir: "R"});
                         this.length++;
-                        this.bodyAry.push({x: this.length * boxSize, y: 0, dir: "R"});
+                        this.bodyAry.push({x: this.bodyAry[this.bodyAry.length-1].x, y: this.bodyAry[this.bodyAry.length-1].y, dir: "R"});
                         this.length++;
-                        this.bodyAry.push({x: this.length * boxSize, y: 0, dir: "R"});
+                        this.bodyAry.push({x: this.bodyAry[this.bodyAry.length-1].x, y: this.bodyAry[this.bodyAry.length-1].y, dir: "R"});
                         this.length++;
-                        var rand2 = Math.floor(Math.random() * width - 50);
-                        var rand1 = Math.floor(Math.random() * height - 50);
-                        food.x = Math.abs(rand1 - rand1 % 5);
-                        food.y = Math.abs(rand2 - rand2 % 5);
-                        console.log(food)
+                        var rand2 = Math.floor(Math.random() * width - 10);
+                        var rand1 = Math.floor(Math.random() * height - 10);
+                        food.x = Math.abs(rand2 - rand2 % 5);
+                        food.y = Math.abs(rand1 - rand1 % 5);
                     }
                 },
                 move: function () {
@@ -96,6 +124,7 @@
                     if (turnbox.dir === "D") {
                         turnbox.y += boxSize;
                     }
+
                     this.eat(turnbox);
                     var i = 0;
                     snake.bodyAry.forEach(function (box) {
@@ -109,9 +138,12 @@
                             prevBoxX = turnboxx;
                             prevBoxY = turnboxy;
                             prevBoxDir = turnbodir;
+                        } else {
+                            snake.checkCollition(box);
                         }
                         i++;
                     });
+
                 },
                 up: function () {
                     snake.bodyAry[0].dir = "U";
@@ -130,12 +162,12 @@
                     snake.direction = "R";
                 }
             };
-            snake.bodyAry.push({x: 5 * boxSize, y: 0, dir: "R"});
-            snake.bodyAry.push({x: 4 * boxSize, y: 0, dir: "R"});
-            snake.bodyAry.push({x: 3 * boxSize, y: 0, dir: "R"});
-            snake.bodyAry.push({x: 2 * boxSize, y: 0, dir: "R"});
-            snake.bodyAry.push({x: 1 * boxSize, y: 0, dir: "R"});
-            snake.bodyAry.push({x: 0, y: 0, dir: "R"});
+            snake.bodyAry.push({x: 5 * boxSize+width/2, y: height/2, dir: "R"});
+            snake.bodyAry.push({x: 4 * boxSize+width/2, y: height/2, dir: "R"});
+            snake.bodyAry.push({x: 3 * boxSize+width/2, y: height/2, dir: "R"});
+            snake.bodyAry.push({x: 2 * boxSize+width/2, y: height/2, dir: "R"});
+            snake.bodyAry.push({x: 1 * boxSize+width/2, y: height/2, dir: "R"});
+            snake.bodyAry.push({x: width/2, y: height/2, dir: "R"});
 
 
 
@@ -146,7 +178,7 @@
                 snake.move();
                 putFood();
             }
-            setInterval("gameLoop()", 50);
+            var invl = setInterval("gameLoop()", 50);
         </script>
     </body>
 </html>
