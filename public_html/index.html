@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+    <body>
+
+        <canvas id="myCanvas" width="2000" height="1000"
+                style="border:1px solid #c3c3c3;">
+            Your browser does not support the canvas element.
+        </canvas>
+
+        <script>
+            var width = 2000;
+            var height = 2000;
+            document.onkeydown = function (a) {
+//                console.log(a);
+                switch (a.code) {
+                    case "ArrowDown":
+                        if (snake.direction === "U") {
+                            break;
+                        }
+                        snake.down();
+                        break;
+                    case "ArrowUp":
+                        if (snake.direction === "D") {
+                            break;
+                        }
+                        snake.up();
+                        break;
+                    case "ArrowLeft":
+                        if (snake.direction === "R") {
+                            break;
+                        }
+                        snake.left();
+                        break;
+                    case "ArrowRight":
+                        if (snake.direction === "L") {
+                            break;
+                        }
+                        snake.right();
+                        break;
+                }
+            };
+            var canvas = document.getElementById("myCanvas");
+            var ctx = canvas.getContext("2d");
+            var boxSize = 15;
+            var food = {x: 100, y: 30}
+            ctx.fillStyle = "#FF0000";
+            function putFood() {
+                ctx.fillStyle = "green";
+                ctx.beginPath();
+                ctx.arc(food.x, food.y, boxSize, 0, 2 * Math.PI);
+                ctx.stroke();
+                ctx.fill()
+            }
+            var snake = {
+                x: 0, y: 0, length: 6, direction: 'R',
+                bodyAry: [],
+                drawSnake: function () {
+                    ctx.fillStyle = "#FF0000";
+                    snake.bodyAry.forEach(function (box) {
+                        snake.draw(box);
+                    });
+                },
+                draw: function (box) {
+                    ctx.fillRect(box.x, box.y, boxSize, boxSize);
+                },
+                eat: function (box) {
+                    if (Math.abs(food.x - box.x) <= boxSize / 2 && Math.abs(food.y - box.y) <= boxSize / 2) {
+//                        alert();
+                        this.bodyAry.push({x: this.length * boxSize, y: 0, dir: "R"});
+                        this.length++;
+                        this.bodyAry.push({x: this.length * boxSize, y: 0, dir: "R"});
+                        this.length++;
+                        this.bodyAry.push({x: this.length * boxSize, y: 0, dir: "R"});
+                        this.length++;
+                        var rand2 = Math.floor(Math.random() * width - 50);
+                        var rand1 = Math.floor(Math.random() * height - 50);
+                        food.x = Math.abs(rand1 - rand1 % 5);
+                        food.y = Math.abs(rand2 - rand2 % 5);
+                        console.log(food)
+                    }
+                },
+                move: function () {
+                    var turnbox = snake.bodyAry[0];
+                    var prevBoxX = turnbox.x;
+                    var prevBoxY = turnbox.y;
+                    var prevBoxDir = turnbox.dir;
+                    if (turnbox.dir === "R") {
+                        turnbox.x += boxSize;
+                    }
+                    if (turnbox.dir === "L") {
+                        turnbox.x -= boxSize;
+                    }
+                    if (turnbox.dir === "U") {
+                        turnbox.y -= boxSize;
+                    }
+                    if (turnbox.dir === "D") {
+                        turnbox.y += boxSize;
+                    }
+                    this.eat(turnbox);
+                    var i = 0;
+                    snake.bodyAry.forEach(function (box) {
+                        if (i !== 0) {
+                            var turnboxx = box.x;
+                            var turnboxy = box.y;
+                            var turnbodir = box.dir;
+                            box.x = prevBoxX;
+                            box.y = prevBoxY;
+                            box.dir = prevBoxDir;
+                            prevBoxX = turnboxx;
+                            prevBoxY = turnboxy;
+                            prevBoxDir = turnbodir;
+                        }
+                        i++;
+                    });
+                },
+                up: function () {
+                    snake.bodyAry[0].dir = "U";
+                    snake.direction = "U";
+                },
+                down: function () {
+                    snake.bodyAry[0].dir = "D";
+                    snake.direction = "D";
+                },
+                left: function () {
+                    snake.bodyAry[0].dir = "L";
+                    snake.direction = "L";
+                },
+                right: function () {
+                    snake.bodyAry[0].dir = "R";
+                    snake.direction = "R";
+                }
+            };
+            snake.bodyAry.push({x: 5 * boxSize, y: 0, dir: "R"});
+            snake.bodyAry.push({x: 4 * boxSize, y: 0, dir: "R"});
+            snake.bodyAry.push({x: 3 * boxSize, y: 0, dir: "R"});
+            snake.bodyAry.push({x: 2 * boxSize, y: 0, dir: "R"});
+            snake.bodyAry.push({x: 1 * boxSize, y: 0, dir: "R"});
+            snake.bodyAry.push({x: 0, y: 0, dir: "R"});
+
+
+
+//            console.log(snake);
+            function gameLoop() {
+                canvas.width = canvas.width + (1 - 1);
+                snake.drawSnake();
+                snake.move();
+                putFood();
+            }
+            setInterval("gameLoop()", 50);
+        </script>
+    </body>
+</html>
+
